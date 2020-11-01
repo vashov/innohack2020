@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.unity">
+
+    // пермишн для локации по GPS
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    // пермишн для локации, используя сеть
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+
+    <application>
+        <service
+            android:name=".AccelerometerService"
+            android:enabled="true"
+            android:exported="true"></service>
+        <service
+            android:name=".GPSService"
+            android:enabled="true"
+            android:exported="true"
+            tools:ignore="Instantiatable" />
+    </application>
+
+</manifest>

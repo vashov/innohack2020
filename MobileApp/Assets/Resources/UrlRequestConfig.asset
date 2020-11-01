@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6af9ca056d2c4bf4ca99f2aa26d2b98f, type: 3}
+  m_Name: UrlRequestConfig
+  m_EditorClassIdentifier: 
+  urlSOS: https://bittech.xyz/api/emergency/add
+  urlLogIn: https://bittech.xyz/api/auth/login
+  urlGPS: https://bittech.xyz/api/gps/add
+  urlWork: https://bittech.xyz/api/shift/add
+  urlDataObject: https://bittech.xyz/api/Construction/list-base-info
+  urlRegistration: https://bittech.xyz/Identity/Account/Register
+  urlTest: https://bittech.xyz/api/auth/test

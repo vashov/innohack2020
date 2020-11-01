@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Gradle: ./Unity/libs/commons-codec-1.13.jar">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/Unity/libs/commons-codec-1.13.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
