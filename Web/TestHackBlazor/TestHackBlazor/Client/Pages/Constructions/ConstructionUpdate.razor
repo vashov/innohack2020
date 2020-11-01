@@ -1,0 +1,88 @@
+﻿@page "/construction-update/{Id:long}"
+
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+
+@using TestHackBlazor.Client.Repositories
+
+<h2 class="mb-3">Редактирование объекта</h2>
+<hr />
+
+@if (Construction == null)
+{
+    <p>Загрузка ...</p>
+    return;
+}
+
+<EditForm Model="@Construction" OnValidSubmit="@HandleValidSubmit">
+
+    <button class="btn btn-primary" type="submit">Сохранить</button>
+
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+
+    <div class="form-row mt-4">
+        <div class="form-group col-6">
+            <label>ID @Construction.Id</label>
+        </div>
+    </div>
+
+    <div class="form-row">
+
+        <div class="form-group col-6">
+            <label>Название</label>
+            <InputText @bind-Value="Construction.Name" class="form-control" />
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-6">
+            <label>Код</label>
+            <InputText @bind-Value="Construction.Code" class="form-control" />
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-6">
+            <label>Адрес</label>
+            <InputText @bind-Value="Construction.Address" class="form-control" />
+        </div>
+    </div>
+
+</EditForm>
+
+<label class="mt-2">Границы объекта</label>
+<TestHackBlazor.Client.Components.MapComponent Borders="Construction.BorderPoints" />
+
+@code {
+    [Parameter]
+    public long Id { get; set; }
+
+    [Inject] private ConstructionRepository ConstructionRepository { get; set; }
+    [Inject] private NavigationManager NavManager { get; set; }
+
+    private ConstructionDTO Construction { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var construct = await ConstructionRepository.Get(Id);
+        if (construct == null)
+        {
+            NavManager.NavigateTo("not-found");
+        }
+        Construction = construct;
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        bool result = await ConstructionRepository.Update(Construction);
+        if (!result)
+        {
+            return;
+        }
+
+        NavManager.NavigateTo("constructions");
+    }
+
+}

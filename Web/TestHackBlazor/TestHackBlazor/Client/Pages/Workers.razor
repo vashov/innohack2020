@@ -1,0 +1,44 @@
+﻿@page "/workers"
+
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using TestHackBlazor.Shared
+@using TestHackBlazor.Client.Repositories
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject HttpClient Http
+
+<h2>Список работников</h2>
+<hr />
+
+@if (users == null)
+{
+    <p><em>Загрузка ...</em></p>
+}
+else
+{
+    int counter = 1;
+    foreach (var user in users)
+    {
+        <div>
+            @(counter++ + ". " + user.FirstName + " " + user.SecondName + " " + user.Patronymic + $" ({user.ProffessionTitle})")
+        </div>
+    }
+}
+
+@code {
+    private List<UserBaseInfoDTO> users;
+
+    [Inject] private UserRepository UserRepository { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            users = await UserRepository.GetList();
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+    }
+}

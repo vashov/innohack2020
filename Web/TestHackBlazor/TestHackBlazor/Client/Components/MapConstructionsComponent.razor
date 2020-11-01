@@ -1,0 +1,61 @@
+﻿@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+
+<div class="my-2">
+    <div id="myConstructsMap" style="width: 800px; height: 700px"></div>
+</div>
+
+@code {
+
+    [Inject]
+    protected IJSRuntime JSRuntime { get; set; }
+
+    [Parameter]
+    public List<ConstructionDTO> Constructions { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Constructions.IsNullOrEmpty())
+        {
+            Constructions = new List<ConstructionDTO>();
+        }
+
+        foreach (var constr in Constructions)
+        {
+            if (constr.BorderPoints.IsNullOrEmpty())
+            {
+                constr.BorderPoints = new List<BorderPointDTO>();
+            }
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            List<string> arrayOfArrays = new List<string>();
+
+            if (Constructions.HasAny())
+            {
+                foreach (var c in Constructions)
+                {
+                    List<string> strs = new List<string>();
+
+                    foreach (var b in c.BorderPoints)
+                    {
+                        strs.Add($"[{b.Latitude},{b.Longitude}]");
+                    }
+
+                    string arrayOfpoints = "[[" + string.Join(',', strs) + "]]";
+                    arrayOfArrays.Add(arrayOfpoints);
+
+                }
+
+            }
+
+            string arrays = string.Join(';', arrayOfArrays);
+            await JSRuntime.InvokeAsync<object>("setupConstructsYandexMap", arrays);
+        }
+    }
+}

@@ -1,0 +1,114 @@
+﻿@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+
+<div class="my-2">
+    <div id="mymap" style="width: 600px; height: 400px"></div>
+</div>
+
+<table class="table my-3">
+    <thead>
+        <tr class="d-flex">
+            <th class="col-1">№</th>
+            <th class="col-3">Широта</th>
+            <th class="col-3">Долгота</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Borders.IsNullOrEmpty())
+        {
+            <tr class="d-flex">
+                <td class="col-1">—</td>
+                <td class="col-3">—</td>
+                <td class="col-3">—</td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var point in Borders)
+            {
+                <tr class="d-flex">
+                    <td class="col-1">@point.Order</td>
+                    <td class="col-3">@point.Latitude</td>
+                    <td class="col-3">@point.Longitude</td>
+                </tr>
+            }
+        }
+
+    </tbody>
+</table>
+
+@code {
+
+    [Inject]
+    protected IJSRuntime JSRuntime { get; set; }
+
+    [Parameter]
+    public List<BorderPointDTO> Borders { get; set; }
+
+    // There is memory leak! Look:
+    // https://blazor-university.com/javascript-interop/calling-dotnet-from-javascript/lifetimes-and-memory-leaks/
+    // https://blazor-university.com/javascript-interop/calling-dotnet-from-javascript/
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Borders.IsNullOrEmpty())
+        {
+            Console.WriteLine("Empty Borders.");
+            Borders = new List<BorderPointDTO>();
+            return;
+        }
+
+        Console.WriteLine(string.Join(';', Borders.Select(s => s.Latitude + "=" + s.Longitude)));
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            string arrayOfpoints = null;
+            List<string> strs = new List<string>();
+            if (Borders.HasAny())
+            {
+                foreach (var b in Borders.OrderBy(c => c.Order))
+                {
+                    strs.Add($"[{b.Latitude},{b.Longitude}]");
+                }
+
+                arrayOfpoints = "[[" + string.Join(',', strs) + "]]";
+            }
+
+            var dotNetReference = DotNetObjectReference.Create(this);
+            await JSRuntime.InvokeAsync<object>("setupYandexMap", dotNetReference, arrayOfpoints);
+        }
+    }
+
+    [JSInvokable]
+    public void OnCoordinatesChanged(decimal[][][] data)
+    {
+        Borders.Clear();
+
+        Console.WriteLine($"Changed start.");
+
+        decimal[][] coordinates = data.FirstOrDefault();
+        if (coordinates != null)
+        {
+            for (int i = 0; i < coordinates.Length; i++)
+            {
+                decimal[] point = coordinates[i];
+                decimal latitude = point[0];
+                decimal longitude = point[1];
+
+                Borders.Add(new BorderPointDTO
+                {
+                    Order = i,
+                    Latitude = latitude,
+                    Longitude = longitude
+                });
+            }
+        }
+
+        Console.WriteLine($"Changed end.");
+
+        StateHasChanged();
+    }
+}

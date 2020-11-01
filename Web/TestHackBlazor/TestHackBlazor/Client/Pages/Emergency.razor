@@ -1,0 +1,134 @@
+﻿@page "/emergency/{Id:long}"
+@using TestHackBlazor.Client.Repositories
+@using TestHackBlazor.Client.Components
+
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+
+<h3>Экстренный вызов</h3>
+<hr />
+
+@if (EmergencyObject == null)
+{
+    <p>Загрузка ...</p>
+    return;
+}
+
+<div class="form">
+
+    <div class="form-row">
+        <div class="form-group col-6">
+            <label>Работник</label>
+            <input class="form-control"
+                   disabled="@IsDisabled"
+                   value="@PersonName" />
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-6">
+            <label>Телефон работника</label>
+            <input class="form-control"
+                   disabled="@IsDisabled"
+                   value="@EmergencyObject.User.PhoneNumber" />
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-6">
+            <label>Название объекта</label>
+            <input class="form-control"
+                   disabled="@IsDisabled"
+                   value="@EmergencyObject.Construction.Name" />
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-6">
+            <label>Код объекта</label>
+            <input class="form-control"
+                   disabled="@IsDisabled"
+                   value="@EmergencyObject.Construction.Code" />
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-6">
+            <label>Адрес</label>
+            <input class="form-control"
+                   disabled="@IsDisabled"
+                   value="@EmergencyObject.Construction.Address" />
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-6">
+            <label>Причина активации</label>
+            <input class="form-control"
+                   disabled="@IsDisabled"
+                   value="@GetActivationType(EmergencyObject.Type)" />
+        </div>
+    </div>
+
+</div>
+
+@code{
+
+}
+
+@if (EmergencyObject.Latitude == null || EmergencyObject.Longitude == null)
+{
+    <p class="text-danger">
+        Точное местоположение сигнала не известно.
+    </p>
+}
+else
+{
+    <p class="text-success">
+        Местоположение сигнала показано на карте.
+    </p>
+}
+
+<MapEmergencyComponent Borders="EmergencyObject.Construction.BorderPoints"
+                       Latitude="EmergencyObject.Latitude"
+                       Longitude="EmergencyObject.Longitude" />
+@code {
+
+    protected bool IsDisabled { get; set; } = true;
+
+    private string PersonName => EmergencyObject.User.FirstName + " " + EmergencyObject.User.SecondName + " " + EmergencyObject.User.Patronymic;
+
+    [Parameter]
+    public long Id { get; set; }
+
+    [Inject] private EmergencyRepository EmergencyRepository { get; set; }
+
+    [Inject] private NavigationManager NavManager { get; set; }
+
+    private EmergencyDTO EmergencyObject { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var emerg = await EmergencyRepository.Get(Id);
+        if (emerg == null)
+        {
+            NavManager.NavigateTo("not-found");
+        }
+
+        EmergencyObject = emerg;
+    }
+
+    private string GetActivationType(EmergencyType type)
+    {
+        switch (type)
+        {
+            case EmergencyType.Falling:
+                return "Падение";
+            case EmergencyType.Manual:
+                return "Ручная";
+            default:
+                return "Нет данных";
+        }
+    }
+
+}

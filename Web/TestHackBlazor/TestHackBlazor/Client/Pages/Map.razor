@@ -1,0 +1,29 @@
+﻿@page "/map"
+@using TestHackBlazor.Shared.Extensions;
+@using TestHackBlazor.Client.Repositories;
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+
+<h3>Карта объектов строительства</h3>
+<hr />
+
+@if (ConstructionDTOs == null)
+{
+    <p>Загрузка ...</p>
+}
+else
+{
+    <TestHackBlazor.Client.Components.MapConstructionsComponent Constructions="ConstructionDTOs" />
+}
+
+@code{
+
+    [Inject] private ConstructionRepository ConstructionRepository { get; set; }
+
+    private List<ConstructionDTO> ConstructionDTOs { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        ConstructionDTOs = await ConstructionRepository.GetList();
+    }
+}

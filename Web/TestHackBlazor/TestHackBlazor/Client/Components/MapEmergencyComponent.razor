@@ -1,0 +1,50 @@
+﻿@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+
+<div class="my-2">
+    <div id="myEmergMap" style="width: 600px; height: 400px"></div>
+</div>
+
+@code {
+
+    [Inject]
+    protected IJSRuntime JSRuntime { get; set; }
+
+    [Parameter]
+    public decimal? Latitude { get; set; }
+
+    [Parameter]
+    public decimal? Longitude { get; set; }
+
+    [Parameter]
+    public List<BorderPointDTO> Borders { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Borders.IsNullOrEmpty())
+        {
+            Borders = new List<BorderPointDTO>();
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            string arrayOfpoints = null;
+            List<string> strs = new List<string>();
+            if (Borders.HasAny())
+            {
+                foreach (var b in Borders.OrderBy(c => c.Order))
+                {
+                    strs.Add($"[{b.Latitude},{b.Longitude}]");
+                }
+
+                arrayOfpoints = "[[" + string.Join(',', strs) + "]]";
+            }
+
+            await JSRuntime.InvokeAsync<object>("setupEmergYandexMap", arrayOfpoints, Latitude, Longitude);
+        }
+    }
+}

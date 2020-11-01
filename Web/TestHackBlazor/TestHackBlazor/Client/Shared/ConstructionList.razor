@@ -1,0 +1,42 @@
+﻿@using TestHackBlazor.Client.Repositories
+
+<div class="my-4">
+    @if (Constructs == null)
+    {
+        <span>Загрузка ...</span>
+    }
+    else
+    {
+        @foreach (var construct in Constructs)
+        {
+            <ConstructionItem Construction="@construct" />
+        }
+    }
+</div>
+
+@code {
+    public List<ConstructionDTO> Constructs { get; set; }
+
+    [Inject] private ConstructionRepository ConstructionRepository { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Constructs = await ConstructionRepository.GetList();
+    }
+
+    //public async Task DeleteUserLink(long id)
+    //{
+    //    var link = UserLinks.FirstOrDefault(l => l.Id == id);
+    //    if (link == null)
+    //        return;
+
+    //    bool result = await UserLinkRepository.DeleteUserLink(id);
+    //    if (!result)
+    //    {
+    //        return;
+    //    }
+
+    //    UserLinks.Remove(link);
+    //    StateHasChanged();
+    //}
+}

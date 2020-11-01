@@ -1,0 +1,74 @@
+﻿
+@*@using Blazored.Modal
+@using Blazored.Modal.Services
+@using ShortLinks.Shared*@
+
+@*@inject IModalService Modal*@
+
+<div class="col-12 px-0">
+    <div class="card my-2">
+        <div class="card-header">
+            <span>ID </span><span>@Construction.Id</span>
+        </div>
+        <div class="card-body">
+            <div class="row my-1">
+                <div class="col-4">
+                    Название
+                </div>
+                <div class="col-8">
+                    @Construction.Name
+                </div>
+            </div>
+
+            <div class="row my-1">
+                <div class="col-4">
+                    Код
+                </div>
+                <div class="col-8">
+                    @Construction.Code
+                </div>
+            </div>
+
+            <div class="row my-1">
+                <div class="col-4">
+                    Адрес
+                </div>
+                <div class="col-8">
+                    @Construction.Address
+                </div>
+            </div>
+
+            <button @onclick="UpdateConstruct" class="btn btn-outline-secondary mt-2">Изменить</button>
+
+            @*<button @onclick="async () => await OnDeleteUserLink?.Invoke(UserLink.Id)" class="btn btn-outline-danger">x</button>*@
+
+        </div>
+    </div>
+</div>
+
+
+@code {
+
+    [Parameter]
+    public ConstructionDTO Construction { get; set; }
+
+    [Inject] private NavigationManager NavManager { get; set; }
+
+    //[Parameter]
+    //public Func<long, Task> OnDeleteUserLink { get; set; }
+
+    private void UpdateConstruct()
+    {
+        NavManager.NavigateTo($"/construction-update/{Construction.Id}");
+    }
+
+    //private void ShowModalEdit()
+    //{
+    //    var parameters = new ModalParameters();
+
+    //    parameters.Add(nameof(UserLink), UserLink);
+    //    parameters.Add(nameof(OnUpdateUserLink), OnUpdateUserLink);
+
+    //    Modal.Show<EditUserLink>("Popup EditUserLink", parameters);
+    //}
+}

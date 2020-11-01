@@ -1,0 +1,82 @@
+﻿@page "/construction-add"
+
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+
+@using TestHackBlazor.Client.Repositories
+@using TestHackBlazor.Shared.Extensions
+
+<h2 class="mb-3">Создание нового объекта</h2>
+<hr />
+
+<EditForm Model="@Construction" OnValidSubmit="@HandleValidSubmit">
+    <button class="btn btn-primary my-3" type="submit">Создать</button>
+
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-row">
+
+        <div class="form-group col-6">
+            <label>Название</label>
+            <InputText @bind-Value="Construction.Name" class="form-control" />
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-6">
+            <label>Код</label>
+            <InputText @bind-Value="Construction.Code" class="form-control" />
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-6">
+            <label>Адрес</label>
+            <InputText @bind-Value="Construction.Address" class="form-control" />
+        </div>
+    </div>
+
+</EditForm>
+
+@if (_showWrongBorders)
+{
+    <p class="text-danger">
+        Укажите верные границы, минимум 3 соединенных точки.
+    </p>
+}
+
+<label class="mt-2">Границы объекта</label>
+<TestHackBlazor.Client.Components.MapComponent Borders="Construction.BorderPoints" />
+
+
+@code {
+    [Inject] private ConstructionRepository ConstructionRepository { get; set; }
+    [Inject] private NavigationManager NavManager { get; set; }
+
+    private bool _showWrongBorders = false;
+
+    private ConstructionCreateDTO Construction { get; set; } = new ConstructionCreateDTO();
+
+    private async Task HandleValidSubmit()
+    {
+        _showWrongBorders = false;
+
+        if (Construction.BorderPoints.IsNullOrEmpty() || Construction.BorderPoints.Count() < 4)
+        {
+            _showWrongBorders = true;
+            StateHasChanged();
+            return;
+        }
+
+        bool result = await ConstructionRepository.Create(Construction);
+        if (!result)
+        {
+            return;
+        }
+
+        NavManager.NavigateTo("constructions");
+    }
+}
+
+

@@ -1,0 +1,21 @@
+﻿@page "/constructions"
+
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+
+<h2>Объекты строительства</h2>
+
+<button class="btn btn-primary my-3" @onclick="CreateConstruction">Добавить новый</button>
+
+<ConstructionList />
+
+@code {
+
+    [Inject] private NavigationManager NavManager { get; set; }
+
+    private void CreateConstruction()
+    {
+        NavManager.NavigateTo("construction-add");
+    }
+
+}

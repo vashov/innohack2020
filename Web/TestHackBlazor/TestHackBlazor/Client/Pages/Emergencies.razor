@@ -1,0 +1,63 @@
+﻿@page "/emergencies"
+@using TestHackBlazor.Client.Repositories
+
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+
+<h3>Экстреные ситуации</h3>
+
+@if (EmergenciesList == null)
+{
+    <p><em>Загрузка ...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Дата</th>
+                <th>Активация</th>
+                <th>Работник</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var emerg in EmergenciesList)
+            {
+                <tr>
+                    <td>@emerg.Created</td>
+                    <td>@GetActivationType(emerg.Type)</td>
+                    <td>@GetPersonName(emerg.User)</td>
+                    <td><a href=@($"/emergency/{emerg.Id}")>Подробнее</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    [Inject] private EmergencyRepository EmergenciesRepository { get; set; }
+
+    private List<EmergencyDTO> EmergenciesList;
+
+    protected override async Task OnInitializedAsync()
+    {
+        EmergenciesList = await EmergenciesRepository.GetList();
+    }
+
+    private string GetPersonName(UserBaseInfoDTO user) => user.FirstName + " " + user.SecondName;
+
+    private string GetActivationType(EmergencyType type)
+    {
+        switch (type)
+        {
+            case EmergencyType.Falling:
+                return "Падение";
+            case EmergencyType.Manual:
+                return "Ручная";
+            default:
+                return "Нет данных";
+        }
+    }
+
+}
